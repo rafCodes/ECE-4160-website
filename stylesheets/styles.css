@@ -68,6 +68,17 @@
   -webkit-font-smoothing: antialiased;
 }
 
+
+.img_parent {
+  width: 430px;
+}
+
+img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
 /* normalize.css 2012-02-07T12:37 UTC - https://github.com/necolas/normalize.css */
 /* =============================================================================
    HTML5 display definitions

@@ -1,0 +1,221 @@
+<!doctype html>
+<html>
+<!doctype html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="chrome=1">
+  <title>Raphael Fortuna ECE 4160 Website</title>
+  <link rel="stylesheet" href="stylesheets/styles.css">
+  <link rel="stylesheet" href="stylesheets/github-dark.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+  <script src="javascripts/respond.js"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+
+</head>
+
+<body>
+  <div id="header">
+    <nav>
+      <li class="fork"><a href="https://github.com/rafCodes/ECE-4160-website">View On GitHub</a></li>
+    </nav>
+  </div><!-- end header -->
+
+  <div class="wrapper">
+
+    <section>
+      <div id="title">
+        <h1>ECE 4160 Fast Robots</h1>
+        <p></p>
+        <center>
+          <h2>Raphael Fortuna</h2>
+        </center>
+        <p></p>
+        <hr>
+        <span class="credits left">Lab reports made by <a href="https://github.com/rafCodes">Raphael Fortuna @
+            rafCodes</a></span>
+        <span class="credits right">Hosted on GitHub Pages &mdash; Theme by <a
+            href="https://twitter.com/michigangraham">mattgraham</a></span>
+      </div>
+
+      <!-- Lab information goes here -->
+
+      <center>
+        <h2><a href="index.html" class="btn">Home</a></h2>
+        <h1> Lab 2: Bluetooth </h1>
+      </center>
+
+      <div>
+        <p>
+          <h2> Summary </h2>
+          <h3>
+            In this lab, I set up Bluetooth Low Energy (BLE) communication on the Artemis and the environment for Arduino and Python code in the prelab. I also completed five different communication tasks between my computer and the Artemis including sending and receiving data, creating new commands, and creating services for receiving and processing incoming Artemis data as described below.
+
+          </h3>
+        </p>
+      </div>
+
+      <div>
+        <p>
+          <h2> Prelab </h2>
+          <h3>
+            I followed the lab instructions and created a virtual environment for Python and installed the Jupyter notebook along with several Python packages. I also downloaded the codebase and went through the different functions for the ArtemisBLEController class. I installed the Arduino BLE as was able to flash the Artemis with ble_arduino.ino to get the MAC address as, shown below, and added it to the connection.yaml file in the Python codebase to connect with the board. I also changed my UUID and updated it in connection.yaml as well.
+          </h3>
+          <h3>
+            I was unable to connect the Jupyter notebook to the Artemis due to issues with BLE and Windows 11, so I took all the code from the notebook and placed it in a Python file and passed the full file path to the connection.yaml file to the ArtemisBLEController class config argument. I also did not change line 53 in base_ble.py to True as this caused Python to be unable to connect to the Artemis. These changes allowed me to connect to the Artemis as seen below :
+          </h3>
+
+          <div class ="img_parent">
+            <img src="Labs\Lab 2\prelab_mac_test_arduino.png" alt="MAC address and default code running for arduino"></p>
+
+            <img src="Labs\Lab 2\prelab_mac_test_py.png" alt="MAC address and default code running for Python"></p>
+  
+          </div>
+        </p>
+      </div>
+
+      <div>
+        <p>
+          <h2> Codebase </h2>
+          <h3>
+            The codebase on the Arduino side contains the advertising and service generation needed for the BLE connection as well as sending messages. Class BLECStringCharacterisitic is used to define different characteristics and send data, class EString makes it easy to package data together and send it via a characteristic, class RobotCommand helps process commands sent from the laptop, and the commands are run by handle_command() in ble_arduino.ide.
+          </h3>
+
+          <h3>
+            The codebase on the Python side uses bleak to connect to the Artemis and saves the Artemis MAC address and BLE UUIDs in connection.yaml. It can send and receive commands from the Artemis using the ArtemisBLEController class.
+          </h3>
+
+          <h3>
+            Command names are shared and stored in the Python and Arduino code as enums.
+          </h3>
+        </p>
+      </div>
+
+      <div>
+        <p>
+          <h2> Bluetooth Connection </h2>
+          <h3>
+            The Bluetooth connection is through BLE, ArduinoBLE on the Arduino side, and Bleak on the Python side. Devices are identified with MAC addresses and BLE passes information through services which have channels that send data back and forth between devices called characteristics.	 Devices can be peripherals that update characteristics from sensors (the Artemis here) by streaming data or a central device (the laptop with the python code) that read and write from/to a characteristic. A characteristic has a UUID used to write and read to it and identify it.
+          </h3>
+        </p>
+      </div>
+
+      <div>
+        <p>
+          <h2> Send Echo Command Task </h2>
+          <h3>
+            To add the echo command, I added code to the Artemis to extract the value sent from Python and then appended three different messages to the tx_estring_value to be sent via the tx_characterisitic_string. The python code sent the ECHO command with the argument “hello” and received a string.
+          </h3>
+          <script src="https://gist.github.com/rafCodes/70733256301beb7b73e4da0a7a48f729.js"></script>
+
+          <div class = img_parent>
+            <img src="IMAGE SOURCE" alt="ALT TEXT"></p>
+          </div>
+        </p>
+      </div>
+
+      
+      <div>
+        <p>
+          <h2> Get Time Command Task </h2>
+          <h3>
+            To add the time command, GET_TIME_MILLIS was added to the Artemis and Python enums containing the commands and a new case statement was added to the Artemis with a helper function that appended “T:” and the time in milliseconds to the tx_estring_value. The python code sent the GET_TIME_MILLIS command and received a string of the time, which it then printed.
+          </h3>
+
+          <script src="https://gist.github.com/rafCodes/3c578b8de553b640079f8428cdacf680.js"></script>
+          
+          <div class = img_parent>
+            <img src="IMAGE SOURCE" alt="ALT TEXT"></p>
+          </div>
+        </p>
+      </div>
+      
+
+      <div>
+        <p>
+          <h2> Notification Handler Task </h2>
+          <h3>
+            This involved creating a helper function in Python that took in a uuid and a bytearray as inputs and printed the converted bytearray. This was used as the callback function for the start_notify with uuid for RX_STRING. I then sent two commands of GET_TIME_MILLIS to make sure they were received and printed. No changes were needed on the Artemis side.
+          </h3>
+
+          <script src="https://gist.github.com/rafCodes/5a53d7abe5996f0a4525104d9823ee6e.js"></script>
+
+          <div class = img_parent>
+            <img src="IMAGE SOURCE" alt="ALT TEXT"></p>
+          </div>
+        </p>
+      </div>
+      
+      <div>
+        <p>
+          <h2> Get 5 Temperature Readings Command Task </h2>
+          <h3>
+            To process multiple temperature readings, I added a “|” in between each time and value and split them by “|” in the start_notify helper function and activated it for this task. I also added a GET_TEMP_5s command to the Python and Artemis command enums. In the Artemis, I added another case statement for GET_TEMP_5s and a loop to append the time to tx_estring_value and add on the temperature using the another helper function that added the temperature to tx_estring_value using the Arduino getTempDegC() function. This was done five times over five seconds, with each reading sent individually.
+          </h3>
+
+          <script src="https://gist.github.com/rafCodes/ec36c3f6b5448c5dd6a1442716680314.js"></script>
+
+          <div class = img_parent>
+            <img src="IMAGE SOURCE" alt="ALT TEXT"></p>
+          </div>
+        </p>
+      </div>
+
+
+      <div>
+        <p>
+          <h2> Get 5 seconds of Temperature Readings Command Task </h2>
+          <h3>
+            Here I had to get five seconds worth of temperature data, so I sent a pair of temperature readings with their respective time stamps from the Artemis to my laptop and was able to send ~180 points over those five seconds. I added the GET_TEMP_5s_RAPID command to the Artemis and Python enums and used the previous helper functions to assemble and send the temperature data from the Artemis.
+          </h3>
+
+          <h3>
+            I also added a function to leave the Python instance alive and idle for a given time so that all temperature data would be received as seen below.
+          </h3>
+
+          <script src="https://gist.github.com/rafCodes/268c4e2a5646bea6fd6c54472e8dd5e1.js"></script>
+
+          <div class = img_parent>
+            <img src="IMAGE SOURCE" alt="ALT TEXT"></p>
+          </div>
+        </p>
+      </div>
+
+      <div>
+        <p>
+          <h2> Limitations Task </h2>
+          <h3>
+            Assuming all RAM is available (and not considering overhead or other stored variables),
+          </h3>
+          <h3>
+            384 kB *1024 bytes/kB * 8 bits/bytes = 3145728 bits RAM, same value shown when the Artemis board is flashed.
+          </h3>
+          <h3>
+            150 Hz of 16 bit values for 5 seconds is 12000 bits, 2400 bits/second
+          </h3>
+          <h3>
+            So, this means that the RAM can hold 3145728/12000 = 262.144 groups of 5 seconds of data, which is 1310.72 seconds of data, or 21.84 minutes of data.
+          </h3>
+          <h3>
+            This is quite a lot, but this is assuming 1 16-bit value per 150 Hz and given there are multiple data streams and more overhead, every extra 16-bit value stored reduces the amount of data time.
+          </h3>
+          <h3>
+            2 16-bit values: 10.92 minutes
+          </h3>
+          <h3>
+            3 16-bit values: 7.28 minutes ….
+          </h3>
+          <h3>
+            21.84/x minutes, so at 10 16-bit values at 150 Hz, this is only 2.184 minutes of storage. So not that much space, so this data needs to either be sent quickly or compressed into a “summary” value.
+          </h3>
+        </p>
+      </div>
+  </div>
+  </section>
+
+  </div>
+
+</body>
+
+</html>
