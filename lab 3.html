@@ -1,0 +1,249 @@
+<!doctype html>
+<html>
+<!doctype html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="chrome=1">
+  <title>Raphael Fortuna ECE 4160 Website</title>
+  <link rel="stylesheet" href="stylesheets/styles.css">
+  <link rel="stylesheet" href="stylesheets/github-dark.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+  <script src="javascripts/respond.js"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+
+</head>
+
+<body>
+  <div id="header">
+    <nav>
+      <li class="fork"><a href="https://github.com/rafCodes/ECE-4160-website">View On GitHub</a></li>
+    </nav>
+  </div><!-- end header -->
+
+  <div class="wrapper">
+
+    <section>
+      <div id="title">
+        <h1>ECE 4160 Fast Robots</h1>
+        <p></p>
+        <center>
+          <h2>Raphael Fortuna</h2>
+        </center>
+        <p></p>
+        <hr>
+        <span class="credits left">Lab reports made by <a href="https://github.com/rafCodes">Raphael Fortuna @
+            rafCodes</a></span>
+        <span class="credits right">Hosted on GitHub Pages &mdash; Theme by <a
+            href="https://twitter.com/michigangraham">mattgraham</a></span>
+      </div>
+
+      <!-- Lab information goes here -->
+
+      <center>
+        <h2><a href="index.html" class="btn">Home</a></h2>
+        <h1> Lab 3: Time of Flight Sensors </h1>
+      </center>
+
+      <div>
+        <p>
+          <h2> Summary </h2>
+          <h3>
+            In this lab, I soldered each of the two time of flight (ToF) sensors to QWIIC connectors, tested each sensor’s I2C connection and range performance, setup the ToF sensors to run together, added ToF functionality to the Bluetooth code, and graphed my time-series ToF data from each sensor.
+
+          </h3>
+        </p>
+      </div>
+
+      <div>
+        <p>
+          <h2> Prelab </h2>
+          <h3>
+            The sensor’s I2C address in the manual was listed as 0x52. Functions for changing the distances and other setting for each ToF sensors were also discussed, like the timing for measurements.
+          </h3>
+          <h3>
+            I will change the address programmatically for one of the two sensors by using the shutdown pin. One sensor will be turned off while the other will have its address reprogrammed as discussed later below. This is because each time a sensor is turned off, it loses any settings applied to it and must wait a short time while it calibrates itself and gets setup. By giving it a different address, the extra wait time would be at the beginning when other initializations are happening and let the sensors gather data faster during the robot’s runtime instead of turning a ToF sensor off and on and waiting when a measurement is needed.
+          </h3>
+          <h3>
+            I will place the two sensors on the front of the robot at different outward angles so that the robot can spin around and detect different obstacles while having some side and forward obstacle detection at the same time. A scenario where this would miss obstacles includes hitting obstacles while reversing or having an obstacle be too close such that both beams are not hitting the obstacle since they are angled outwards. I will be using the long wires so that the location can easily be changed if needed.
+          </h3>
+        </p>
+      </div>
+
+      <div>
+        <p>
+          <h2> Installation and Assembly Task </h2>
+          <h3>
+            I first installed the SparkFun VL53L1X 4m laser distance sensor library. Next, I looked up the pin diagram for the QWIIC connector on Sparkfun’s website and found that black is ground, red is vin, blue is SDA, and yellow is SCL. I cut one end off of each QWIIC connector and soldered them to the respective ends of the ToF sensor as seen below. I also soldered a jumper cable to the XSHUT shutdown pin so that one ToF sensor could be turned off to reprogram the I2C address of the other sensor. I chose the long connector since this would give me flexibility in where I could put the TOF sensor on the robot.
+          </h3>
+
+          <div class = img_parent>
+            <img src="Labs\Lab 3\SolderedToFSensors.jpg" alt="Soldered ToF sensors"></p>
+          </div>
+
+          <h3>
+            I then connected the first ToF sensor to the QWIIC breakout board.
+          </h3>
+
+          <div class = img_parent>
+            <img src="Labs\Lab 3\ConnectedSensor.jpg" alt="ToF sensor connected to QWIIC breakout board"></p>
+          </div>
+        </p>
+      </div>
+
+      <div>
+        <p>
+          <h2> Scanning Task </h2>
+          <h3>
+            When I ran the Example1_wire code in Apollo3, it said the address of the ToF sensor was 0x29. The code looped through addresses from 1 to 127 and checked if there was a return value from the transmissions using a Wire.h and i2c.
+          </h3>
+
+          <div class = img_parent>
+            <img src="Labs\Lab 3\I2CPortDetection.png" alt="Arduino output showing that the port is 0x29"></p>
+          </div>
+
+          <h3>
+            The datasheet talked about how the correct address should be 0x52 instead of 0x29.
+          </h3>
+
+          <h3>
+            However, the last bit is the R/W bit, so as Anaya mentions in her website: https://anyafp.github.io/ece4960/labs/lab3/ the address is bit shifted so now it is 0x29 for the address. This is the same address for both of the ToF sensors.
+          </h3>
+
+        </p>
+      </div>
+
+
+      <div>
+        <p>
+          <h2> Range Optimization Task </h2>
+          <h3>
+            The three modes for measuring distance are: short, medium, and long as from the datasheet.
+          </h3>
+
+          <h3>
+            Short measures distances up to 1.3 m and has better resistance to ambient influences. Medium measures distances up to 3 m. Long measures distances up to 4 m and is the default mode for the ToF sensor. The sensor measurement that works the best depends on the tasks needed for the final robot. For localization, more distance is needed to scan around the robot so the long mode would be good. For any tasks before the final tasks that need to be near a wall to stop or flip, then the short mode would be helpful instead to be more accurate.
+          </h3>
+
+          <h3>
+            The datasheet also discussed how the medium and long settings had their ranges go down to 76 cm and 73 cm for their maximum range under strong ambient light while the short distance mode only lost 1 cm of range to 135 cm. So, if it is very bright out then the short distance mode should be used as it will have the longest range.
+          </h3>
+        </p>
+      </div>
+
+
+      <div>
+        <p>
+          <h2> Range Testing Task </h2>
+          <h3>
+            I used the Example1_ReadDistance example from the ToF sensor examples to test a sensor. I added a extra line to the initialization to set the mode to short with distanceSensor.setDistanceModeShort();. I also added code to get the start and end time of the reading to get the average ranging time.	
+          </h3>
+
+          <h3>
+            For the sensor range, the max range should be 136 cm, so I walked backwards from the sensor holding a folder to see how the distance changed. As I went further past the maximum range, the sensor readings dropped swiftly to near 0 and then stayed around 200 millimeters at around 4.5 meters of distance. This means that the ToF sensor cannot measure outside its given range for short and has good repeatability from the graph below. There is a time shift on the x axis from how fast I was moving from the sensor and one sensor reading did not make it past 1200 millimeters, so the sensor should not be used near its max range.
+          </h3>
+
+          <div class = img_parent>
+            <img src="Labs\Lab 3\ToFGraph.png" alt="Graph of ToF sensor data vs step size while walking backwards"></p>
+          </div>
+
+          <h3>
+            The ranging time for the sensor was 33 milliseconds on average during these measurements.
+          </h3>
+
+          <h3>
+            I also took 11 measurements where I compared the distance measured using a measuring tape vs the ToF sensor. I found that the measurements were not as reliable and differed by 2-3 cm when measuring very close to the sensor, but in the mid-range between 10 cm and 130 cm, were accurate. After passing the 136 cm limit for the short range mode, the readings starting differing by 10 cm or more until the sensor no longer registered a distance at 200 cm, similarly to the graph above.
+          </h3>
+
+          <div class = img_parent>
+            <img src="Labs\Lab 3\ToFComparedToRuler.png" alt="Graph of ToF sensor data vs the actual distance"></p>
+          </div>
+
+          <script src="https://gist.github.com/rafCodes/f632df00d1922830fd66cb1f2de58b39.js"></script>
+
+        </p>
+      </div>
+
+
+      <div>
+        <p>
+          <h2> Running both ToF Sensors together Task </h2>
+          <h3>
+            To run both sensors together, I decided to use the XSHUT pin to turn off one of the sensors temporarily so that I could change the I2C address. I followed the steps on Anaya’s website (https://anyafp.github.io/ece4960/labs/lab3/) and used the 0x32 address for my second sensor. 
+          </h3>
+
+          <h3>
+            I created an initialization function for the ToF sensors in Arduino and then created functions to print each of them out to the console only when data was available.
+          </h3>
+
+          <h3>
+            Here is a picture of the data from each sensor being printed:
+          </h3>
+
+          <div class = img_parent>
+            <img src="Labs\Lab 3\ArduinoToFDataFromSensors.png" alt="Alpha and Beta sensor readings being printed"></p>
+          </div>
+
+          <script src="https://gist.github.com/rafCodes/f9b8a5de269871d151a3c7a5d314e154.js"></script>
+        </p>
+      </div>
+
+      <div>
+        <p>
+          <h2> ToF Sensor Speed Task </h2>
+          <h3>
+            I used the functions from the previous task and added a print statement for milliseconds, otherwise, it skipped printing sensor data. It printed the Artemis clock each time it cycled through each ToF sensor as seen above commented out.
+          </h3>
+
+          <h3>
+            A picture of the output from the sensors and Artemis clock can be seen below, with the values under 500 as the sensor measurments:
+          </h3>
+
+          <div class = img_parent>
+            <img src="Labs\Lab 3\ToFSpeedPrinting.png" alt="Printing the clock and ToF sensors as fast as possible"></p>
+          </div>
+
+          <h3>
+            The time for the loop to execute was 102 milliseconds. The limiting factor for this loop seems to be the timing defaults for the ToF sensor. From the datasheet, the timing budget is how long it takes the sensor to perform one range measurement and the inter-measurement period is the delay between each ranging measurement. By decreasing the inter-measurement period, the ToF sensor would measure the distance more often, reducing the loop time. The ranging timing could also be decreased depending on the distance mode; however, this could mess up the measurement if it is too small, so the inter-measurement period is the better choice.
+          </h3>
+
+        </p>
+      </div>
+
+      <div>
+        <p>
+          <h2> Graphing ToF Task </h2>
+          <h3>
+            For this task, I added a new file to the Artemis Bluetooth project and made the ToF functions standalone so that they could be modified or changed without having to update the Bluetooth file. I added a command called SEND_TOF_DATA_FOR_X to the Python and Arduino enums which would send ToF data for a given amount of seconds back to the laptop.
+          </h3>
+
+          <h3>
+            I used a similar method to the previous task to get ToF data and would loop and wait until a sensor reading was ready and then sent sensor readings in sets of 4. I formatted each reading with TOF_ with the _ either being A (Alpha) or B (Beta) depending on which sensor the reading was done with.
+          </h3>
+
+          <h3>
+            Once I was able to send ToF data to my laptop, I added code to save and process the data and separate the data from sensors A and B by using the letters added to distance label.
+          </h3>
+
+          <h3>
+            Here is data from the two ToF sensors sent via Bluetooth and processed by my Python code. The Alpha sensor was pointing towards a near wall while the Beta sensor was pointing towards a far wall.
+          </h3>
+
+          <div class = img_parent>
+            <img src="Labs\Lab 3\ToFDataGraphed.png" alt="Graphed data for both ToF sensors"></p>
+          </div>
+
+          <script src="https://gist.github.com/rafCodes/81d290f78be887254a1c872844a1491b.js"></script>	
+
+        </p>
+      </div>
+
+  </div>
+  </section>
+
+  </div>
+
+</body>
+
+</html>
