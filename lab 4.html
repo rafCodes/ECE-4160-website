@@ -89,6 +89,8 @@
             I added a visual indicator to blink the LED 3 times once the setup was complete for the Artemis to show everything is running. I made it so any number of blinks could be shown so it could be reused elsewhere.
           </h3>
 
+          <script src="https://gist.github.com/rafCodes/19aee7ead5573e60dcb5b3d5b11e38df.js"></script>
+
           <video width="430" height="270" controls="">
             <source src="Labs\Lab 4\BlinkingTask.mp4">
           </video>
@@ -120,6 +122,8 @@
             Here is a video with each output of the accelerometer for -90, 0, and 90 for pitch and roll.
           </h3>
 
+          <script src="https://gist.github.com/rafCodes/7dfbd9fac43860928d0f42e7bb7b3922.js"></script>
+
           <h3>
             Pitch:
           </h3>
@@ -146,7 +150,7 @@
         <p>
           <h2> Accelerometer Noise Task </h2>
           <h3>
-            I ran the car above the accelerometer to see how much its value changed and sent 20 seconds of data to my laptop using a new command that collected and sent 5 seconds worth of accelerometer data. After gathering this data, I split up the pitch and roll data and ran a FFT on the data using the tutorial found here: https://alphabold.com/fourier-transform-in-python-vibration-analysis/. The graphs generated are below.
+            I ran the car above the accelerometer to see how much its value changed and sent 20 seconds of data to my laptop using a new command that collected and sent 5 seconds worth of accelerometer data. After gathering this data, I split up the pitch and roll data and ran a FFT on the data using the tutorial found <a href = "https://alphabold.com/fourier-transform-in-python-vibration-analysis/"> here</a>. The graphs generated are below.
           </h3>
 
           <div class = img_parent>
@@ -166,7 +170,7 @@
           </div>
 
           <h3>
-            In both the pitch and roll, the frequency found was under .1 Hz. This was because the chip already had the low noise mode set as default for the accelerometer as discussed in the accelerometer noise performance table found on page 12 of the datasheet found here: https://cdn.sparkfun.com/assets/7/f/e/c/d/DS-000189-ICM-20948-v1.3.pdf. So, a low pass filter is not needed for the accelerometer.
+            In both the pitch and roll, the frequency found was under .1 Hz. This was because the chip already had the low noise mode set as default for the accelerometer as discussed in the accelerometer noise performance table found on page 12 of the datasheet found <a href= "https://cdn.sparkfun.com/assets/7/f/e/c/d/DS-000189-ICM-20948-v1.3.pdf">here</a>. So, a low pass filter is not needed for the accelerometer.
           </h3>
 
         </p>
@@ -204,6 +208,8 @@
             The direction of the yaw and pitch value from the gyroscope also had to be flipped to match that of the airplane diagram.
           </h3>
 
+          <script src="https://gist.github.com/rafCodes/454ac6ce15f67ced9d16b15f9fd670de.js"></script>
+
           <div class = img_parent>
             <img src="Labs\Lab 4\AccelGyroDataComparison.png" alt="Acceleration and Gyroscope comparison data"></p>
           </div>
@@ -222,6 +228,8 @@
           <h3>
             The range is +/- 90 degrees for the roll and pitch and as seen in the video below, it is not susceptible to drift or quick vibrations. I used 90% of the gyroscope and 10% of the accelerometer with a delay of 1 millisecond per loop.
           </h3>
+
+          <script src="https://gist.github.com/rafCodes/61dd43eda5f93c965fede718a5f2b283.js"></script>
 
           <video width="430" height="270" controls="">
             <source src="Labs\Lab 4\IMUComplimentaryFilter.mp4">
@@ -269,6 +277,12 @@
           <h3>
             I created a test function to send data over to my laptop and processed the data to show the outputs on a time series graph. I updated my code to have two new characteristics and for all code handling BLE to now take in a reference to the characteristic objects to simplify the code for any future characteristics.
           </h3>
+
+          <h3>
+            Here is the new IMU processing function that compliments the previous ToF processing function.
+          </h3>
+
+          <script src="https://gist.github.com/rafCodes/e6fe5e82e299f00a6e9a8dfe02a9e595.js"></script>
 
           <div class = img_parent>
             <img src="Labs\Lab 4\TOFIMUPitchRoll.png" alt="Pitch and Roll data sent"></p>
