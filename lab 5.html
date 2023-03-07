@@ -1,0 +1,281 @@
+<!doctype html>
+<html>
+<!doctype html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="chrome=1">
+  <title>Raphael Fortuna ECE 4160 Website</title>
+  <link rel="stylesheet" href="stylesheets/styles.css">
+  <link rel="stylesheet" href="stylesheets/github-dark.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+  <script src="javascripts/respond.js"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+
+</head>
+
+<body>
+  <div id="header">
+    <nav>
+      <li class="fork"><a href="https://github.com/rafCodes/ECE-4160-website">View On GitHub</a></li>
+    </nav>
+  </div><!-- end header -->
+
+  <div class="wrapper">
+
+    <section>
+      <div id="title">
+        <h1>ECE 4160 Fast Robots</h1>
+        <p></p>
+        <center>
+          <h2>Raphael Fortuna</h2>
+        </center>
+        <p></p>
+        <hr>
+        <span class="credits left">Lab reports made by <a href="https://github.com/rafCodes">Raphael Fortuna @
+            rafCodes</a></span>
+        <span class="credits right">Hosted on GitHub Pages &mdash; Theme by <a
+            href="https://twitter.com/michigangraham">mattgraham</a></span>
+      </div>
+
+      <!-- Lab information goes here -->
+
+      <center>
+        <h2><a href="index.html" class="btn">Home</a></h2>
+        <h1> Lab 5: Motors and Open Loop Control </h1>
+      </center>
+
+      <div>
+        <p>
+          <h2> Summary </h2>
+          <h3>
+            In this lab I soldered wires to the motor drivers and connected them to the Artemis. I ran PWM tests on the motor drivers and checked it with an oscilloscope to make sure it was working. Next the car was modified to use the motor drivers and tested to make sure everything was installed correctly. Finally, open loop control was added and tested.
+          </h3>
+        </p>
+      </div>
+
+      <div>
+        <p>
+          <h2> Prelab </h2>
+          <h3>
+            I read the documentation and datasheet for the dual motor driver and found that VIN was 2.7-10.8 volts, ground was common for each side, and AIN1, 2 and BIN1, 2 were for the PWM input signals. I also found that AOUT1, 2 and BOUT1, 2 are for the DC motors and will be wired together according to number – 1 with 1, 2 with 2 – for both the IN and OUT connections.
+          </h3>
+
+          <h3>
+            Each channel can supply 1.2 A per second, with a peak of 2A for a few seconds, which is why the OUTs will be wired together in parallel as described by the manual to give 2.4 A per second with a peak of 4A.
+          </h3>
+
+          <h3>
+            The GPIO pins I will be using are GPIO 16,15, 2, and 3 since each pin only has 1-2 extra functions, reducing the lost functionality on the Artemis. 16 and 15 are next to each other as are 2 and 3, but the pairs are far from each other, making it easier to solder them and keep track of the pins.
+          </h3>
+
+          <h3>
+            The Artemis and motors/motor drivers are being powered by different batteries to reduce EMI noise coming from the motors. 
+          </h3>
+
+          <h3>
+            I have soldered jumper wires that I cut to the Artemis and motor drivers to make it easier to repair them since they can be unplugged and used flex-core wire on the wires coming from the motor driver to avoid breakages.
+          </h3>
+
+          <div class = img_parent>
+            <img src="Labs\Lab 5\ArtemisWiringDiagram.png" alt="Diagram of Artemis Connections">
+          </div>
+        </p>
+      </div>
+
+      <div>
+        <p>
+          <h2> Soldering the Motor Driver Task </h2>
+          <h3>
+            I soldered wires with jumper headers on them to the motor drivers and Artemis to make fixing and testing them easier and reducing their shape profile. I used small solid-core wires for the connections for the IN and OUT pins on the motor controller since they will not be moving and are next to each other. A picture of the soldered motor driver and Artemis is below.
+          </h3>
+
+          <div class = img_parent>
+            <img src="Labs\Lab 5\MotorDriverOne.jpg" alt="Picture of Soldered Motor Driver">
+          </div>
+          <h3>
+            I will use 3.7 V and 1.5 A for the power supply since this is below the maximum peak of the motor driver and the battery outputs 3.7 V from its pins.
+          </h3>
+
+          <div class = img_parent>
+            <img src="Labs\Lab 5\TestingSetupOne.jpg" alt="Picture of power supply and oscilloscope setup">
+          </div>
+
+          <h3>
+            Here is the code I used to test the motor drivers with the PWM signal of 100 and then 50:
+          </h3>
+
+          <script src="https://gist.github.com/rafCodes/4fc0b97a497d518b0d9d7e7b2d5e2e70.js"></script>
+
+          <div class = img_parent>
+            <img src="Labs\Lab 5\100PWMTestOne.jpg" alt="Picture of Oscilloscope and the Wave Form - 100 PWM Signal">
+          </div>
+
+          <div class = img_parent>
+            <img src="Labs\Lab 5\50PWMTestOne.jpg" alt="Picture of Oscilloscope and the Wave Form - 50 PWM Signal">
+          </div>
+
+        </p>
+      </div>
+
+      <div>
+        <p>
+          <h2> Car Disassembly Task </h2>
+          <h3>
+            I disassembled the car next. I first removed the top, removed the LEDs, removed the bottom LED covers, cut the motor and power wires to remove the circuit board, and poked a hole into the battery holder compartment to pass the Artemis battery wire through.
+          </h3>
+          <div class = img_parent>
+            <img src="Labs\Lab 5\DisassembledCar.jpg" alt="Picture of Disassembled Car">
+          </div>
+        </p>
+      </div>
+
+      <div>
+        <p>
+          <h2> Motor Driver Test Task </h2>
+          <h3>
+            I connected the motor driver to the car motor and was able to run the motor in both directions as seen below with the Artemis using PINS 16 and 15. I made sure to connect all ground together.
+          </h3>
+
+          <video width="430" height="270" controls="">
+            <source src="Labs\Lab 5\RightMotorPowerSupply.mp4">
+          </video>
+
+          <script src="https://gist.github.com/rafCodes/4da4d2b49c336810d412d485989bcd77.js"></script>
+
+        </p>
+      </div>
+
+      <div>
+        <p>
+          <h2> Motor Driver Battery Test Task </h2>
+          <h3>
+            I soldered the battery connector to the motor driver and was able to use it to power the motor driver and move the car wheels as seen below.
+          </h3>
+
+          <video width="430" height="270" controls="">
+            <source src="Labs\Lab 5\RightMotorBattery.mp4">
+          </video>
+
+          <h3>
+            I then repeated the above tasks for the second motor driver and used the 2, 3 pins instead of the 16, 15 pins. Below is the oscilloscope wave form and the two motor driving tests.
+          </h3>
+          Video of motor driving in both directions WITH BATTERY
+
+          <div class = img_parent>
+            <img src="Labs\Lab 5\MotorDriverTwo.jpg" alt="Picture of second soldered motor controller">
+          </div>
+
+          <div class = img_parent>
+            <img src="Labs\Lab 5\TestingSetupTwo.jpg" alt="Picture of power supply and oscilloscope setup for second motor driver">
+          </div>
+
+          <h3>
+            Here are two photos of the waveforms for 100 PWM and 25 PWM signals respectively
+          </h3>
+
+          <div class = img_parent>
+            <img src="Labs\Lab 5\100PWMTestTwo.jpg" alt="Picture of Oscilloscope and the Wave Form - 100 PWM Signal">
+          </div>
+
+          <div class = img_parent>
+            <img src="Labs\Lab 5\25PWMTestTwo.jpg" alt="Picture of Oscilloscope and the Wave Form - 20 PWM Signal">
+          </div>
+
+          <video width="430" height="270" controls="">
+            <source src="Labs\Lab 5\LeftMotorPowerSupply.mp4">
+          </video>
+
+          <video width="430" height="270" controls="">
+            <source src="Labs\Lab 5\LeftMotorBattery.mp4">
+          </video>
+
+          <h3>
+            I connected both the motor controllers to the Artemis with their appropriate pins and grounds and was able to make both sides of the car’s wheels spin as seen below.
+          </h3>
+          
+          <video width="430" height="270" controls="">
+            <source src="Labs\Lab 5\BothMotors.mp4">
+          </video>
+        </p>
+      </div>
+
+      <div>
+        <p>
+          <h2> Part Installation Task </h2>
+          <h3>
+            The next step was to install the Artemis, motor drivers, ToF, IMU, and batteries into the car. I made sure to twist the wires to reduce EMI effects.
+          </h3>
+
+          <div class = img_parent>
+            <img src="Labs\Lab 5\AssembledCar.jpg" alt="Assembled Car"></p>
+          </div>
+
+          <h3>
+            I drove the car around and added a timer for the car to stop after a few seconds this can be seen in the Open Loop Control Task video.
+          </h3>
+
+        </p>
+      </div>
+
+      <div>
+        <p>
+          <h2> PWM Task </h2>
+          <h3>
+            I modified the code above to find what the smallest PWM value was that would still move the car. I found that the PWM values were:          </h3>
+
+          <h3>
+            Left side of robot: 60
+          </h3>
+
+          <h3>
+            Right side of robot: 60
+          </h3>
+
+          <h3>
+            The car was unable to use the left motor to turn on its axis even at max power, without a little push, the left motor was unable to move.          </h3>
+
+        </p>
+      </div>
+
+      <div>
+        <p>
+          <h2> Calibration Task </h2>
+          <h3>
+            At nearly max power with the left motor – 230 PWM vs 70 PWM for the right motor – it was able to go somewhat go straight. This imbalance is strange and the left motor is unable to turn itself even at max power on the ground.
+          </h3>
+
+          <video width="430" height="270" controls="">
+            <source src="Labs\Lab 5\DrivingForward.mp4">
+          </video>
+
+          <h3>
+            At nearly max power with the left motor – 230 PWM vs 70 PWM for the right motor – it was able to go somewhat go straight. This imbalance is strange and the left motor is unable to turn itself even at max power on the ground.
+          </h3>
+        </p>
+      </div>
+
+      <div>
+        <p>
+          <h2> Open Loop Control Task </h2>
+          <h3>
+            Although the car was having issues with calibration, I added functions for the car to turn right and left. I did this by reversing the directions of one of the sides of the car – left side for turning right, right side for turning left – and letting it move for a certain amount of time. I also added a function for it to drive forward. I also added keyboard functionality for tuning the PWM that I used above as well as for driving the car from Python as seen below.          </h3>
+
+          <video width="430" height="270" controls="">
+            <source src="Labs\Lab 5\TimedDriving.mp4">
+          </video>
+
+          <script src="https://gist.github.com/rafCodes/7255239cf36c9a69314efaa9aef05fd4.js"></script>
+          
+        </p>
+      </div>
+
+  </div>
+  </section>
+
+  </div>
+
+</body>
+
+</html>
