@@ -1,0 +1,151 @@
+<!doctype html>
+<html>
+<!doctype html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="chrome=1">
+  <title>Raphael Fortuna ECE 4160 Website</title>
+  <link rel="stylesheet" href="stylesheets/styles.css">
+  <link rel="stylesheet" href="stylesheets/github-dark.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+  <script src="javascripts/respond.js"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+
+</head>
+
+<body>
+  <div id="header">
+    <nav>
+      <li class="fork"><a href="https://github.com/rafCodes/ECE-4160-website">View On GitHub</a></li>
+    </nav>
+  </div><!-- end header -->
+
+  <div class="wrapper">
+
+    <section>
+      <div id="title">
+        <h1>ECE 4160 Fast Robots</h1>
+        <p></p>
+        <center>
+          <h2>Raphael Fortuna</h2>
+        </center>
+        <p></p>
+        <hr>
+        <span class="credits left">Lab reports made by <a href="https://github.com/rafCodes">Raphael Fortuna @
+            rafCodes</a></span>
+        <span class="credits right">Hosted on GitHub Pages &mdash; Theme by <a
+            href="https://twitter.com/michigangraham">mattgraham</a></span>
+      </div>
+
+      <!-- Lab information goes here -->
+
+      <center>
+        <h2><a href="index.html" class="btn">Home</a></h2>
+        <h1> Lab 6: Closed Loop Control (PID) </h1>
+      </center>
+
+      <div>
+        <p>
+          <h2> Summary </h2>
+          <h3>
+            In this lab, I added a system for collected and sending debug data for ToF, IMU, and motor data. I created a P controller to control the car’s distance to a wall with the ToF sensor and tuned it so that it would stop ~1 foot in front of a wall.
+
+          </h3>
+        </p>  
+      </div>
+
+      <div>
+        <p>
+          <h2> Prelab </h2>
+          <h3>
+            I first added a new UUID for the motor data being sent from the robot and made sure it was being received and processed by my laptop. I also added data collection functions to the sensor functions to automatically collect data whenever the sensor was running and returned data.
+          </h3>
+          <h3>
+            The data was stored on the car using the Arduino String library with strict limitations on char sizes being reserved and how many values were reserved for each of the three messages being sent to avoid any memory holes in the heap or the heap and stack colliding. I also had it blink the LED once it had was out of space to collect data.
+          </h3>
+          <h3>
+            Although I used the String library for this lab, I will be swapping to arrays in future labs due to size constraints to store more data per run. Below is the current code used for sending, saving, and processing the IMU, ToF, and motor data with one example for each since they are all very similar in structure.
+          </h3>
+          <script src="https://gist.github.com/rafCodes/b93705d19458401e8fd617dce6242543.js"></script>
+          <script src="https://gist.github.com/rafCodes/aff8f556a88cdfd96d4a975b40856385.js"></script>
+          <script src="https://gist.github.com/rafCodes/ee93894a1be71b3b0c565b8fe6802855.js"></script>
+          <script src="https://gist.github.com/rafCodes/7b27335b6f49d5fe5eb1499d41528908.js"></script>
+
+        </p>
+      </div>
+
+      <div>
+        <p>
+          <h2> Position Control Task </h2>
+          <h3>
+            This task involves stopping .304 m from the wall and starting 2-4 meters from the wall – the value of the ToF sensors, so the range of error value is ~700 mm to ~304 mm. With the default settings, the ToF sensors were updating the motors once a second, so I changed the intermeasurement period to 10 milliseconds.
+          </h3>
+
+          <h3>
+            I used a P controller and used 0.03 for kp. I also added a function to change the kp value via Bluetooth and saved the collected data as .npy files. I made sure to keep collecting data while waiting for the ToF to return data and ran the PID and graphed the collected data with 1814 IMU data points for roll and pitch, 56 ToF data points for the single sensor being used, and 114 data points for the motor inputs. I only used P here since the car was able to stop far enough from the wall.
+          </h3>
+
+          <script src="https://gist.github.com/rafCodes/cfc6c932f9b543a19a94f7f9d75d86c5.js"></script>
+
+          <h3>
+            I converted the speed from the PID controller using the below function.
+          </h3>
+
+          <script src="https://gist.github.com/rafCodes/f5e4b2869693f030388b42dfbab0f2e3.js"></script>
+
+          <h3>
+            Using the collected data, the maximum speed achieved was a jolt of 7.3 m/s, with an average speed of .73 m/s during the majority of the car’s movement period.
+          </h3>
+
+          <div class = img_parent>
+            <img src="Labs\Lab 6\ToF_Time56.png" alt="ToF vs time graph with a gradual decrease">
+          </div>
+          <p></p>
+
+          <div class = img_parent>
+            <img src="Labs\Lab 6\IMU_Time1814.png" alt="IMU vs time graph with some noise at the beginning until stabiling near the end">
+          </div>
+          <p></p>
+          <div class = img_parent>
+            <img src="Labs\Lab 6\Motor_Time114.png" alt="Motor vs time graph with a gradual decrease in speed">
+          </div>
+          <p></p>
+
+          <h3>
+            Here is the video whose data is shown above.
+          </h3>
+
+          <video width="430" height="270" controls="">
+            <source src="Labs\Lab 6\1stTrial.mp4">
+          </video>
+
+          <h3>
+            The car was able to stop but had a little bit of overshoot that led to it backing up to get to the 304 mm distance that corresponded to 1 foot. After going through the data and code, I have narrowed this down to filtering the ToF sensor before saving it to be sent, but not when the sensor data is gathered, I will update it to filter when it first gathered.
+          </h3>
+
+          <h3>
+            Here are the two other trials.
+          </h3>
+
+          <video width="430" height="270" controls="">
+            <source src="Labs\Lab 6\2ndTrial.mp4">
+          </video>
+
+          <video width="430" height="270" controls="">
+            <source src="Labs\Lab 6\3rdTrial.mp4">
+          </video>
+        </p>
+      </div>
+
+      
+
+  </div>
+  </section>
+
+  </div>
+
+</body>
+
+</html>
