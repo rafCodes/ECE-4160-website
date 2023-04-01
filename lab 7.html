@@ -1,0 +1,272 @@
+<!doctype html>
+<html>
+<!doctype html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="chrome=1">
+  <title>Raphael Fortuna ECE 4160 Website</title>
+  <link rel="stylesheet" href="stylesheets/styles.css">
+  <link rel="stylesheet" href="stylesheets/github-dark.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+  <script src="javascripts/respond.js"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+
+</head>
+
+<body>
+  <div id="header">
+    <nav>
+      <li class="fork"><a href="https://github.com/rafCodes/ECE-4160-website">View On GitHub</a></li>
+    </nav>
+  </div><!-- end header -->
+
+  <div class="wrapper">
+
+    <section>
+      <div id="title">
+        <h1>ECE 4160 Fast Robots</h1>
+        <p></p>
+        <center>
+          <h2>Raphael Fortuna</h2>
+        </center>
+        <p></p>
+        <hr>
+        <span class="credits left">Lab reports made by <a href="https://github.com/rafCodes">Raphael Fortuna @
+            rafCodes</a></span>
+        <span class="credits right">Hosted on GitHub Pages &mdash; Theme by <a
+            href="https://twitter.com/michigangraham">mattgraham</a></span>
+      </div>
+
+      <!-- Lab information goes here -->
+
+      <center>
+        <h2><a href="index.html" class="btn">Home</a></h2>
+        <h1> Lab 7: Kalman Filter </h1>
+      </center>
+
+      <div>
+        <p>
+          <h2> Summary </h2>
+          <h3>
+            In this lab, I made a Kalman Filter in Python and extrapolated ToF values. I first estimated the drag and momentum of the car to initialize the A and B matrix for the Kalman Filter. Then I found the process noise and sensor noise covariance matrixes. I then implemented and tested the Kalman filter in Python code to check my parameters and extrapolated ToF values as well to speed up estimated ToF sampling on my car.
+
+          </h3>
+        </p>
+      </div>
+
+      <div>
+        <p>
+          <h2> Estimate Drag and Momentum Task </h2>
+          <h3>
+            I first used a step response to create the ToF and PWM graphs needed to get the drag and momentum values for the Kalman Filter. I drove my car towards a wall and logged the motor PWM values and ToF sensor output. I set the PWM value for the step response to 85 as this was my maximum value for the PID in lab 6.
+          </h3>
+
+          <h3>
+            Here is my graph for calculating the rise time and steady state with ToF, PWM, and speed with the x axis in seconds. The second graph is annotated with the 90% rise time and steady state speed:
+          </h3>
+
+          <div class = img_parent>
+            <img src="Labs\Lab 7\MaxAndRiseSpeedGraph.png" alt="PWM, speed, and ToF data vs time">
+          <p></p>
+          </div>
+          
+          <div class = img_parent>
+            <img src="Labs\Lab 7\MaxAndRiseSpeedGraphAnnotated.png" alt="PWM, speed, and ToF data vs time with annotations for the rise time">
+          <p></p>
+          </div>
+
+          <h3>From this, I got that my steady state speed was ~600 mm/s. The 90% rise time was 0.2329 seconds.</h3>
+
+        </p>
+      </div>
+
+      <div>
+        <p>
+          <h2> Initialize KF Task </h2>
+          <h3>
+            I first computed my A and B matrices and discretized them using the code below. My sampling time was 85 samples over 8 seconds for 0.094 seconds per sample.
+          </h3>
+
+          <h3> Here is the initialization for the Kalman Filter class as well. </h3>
+          <script src="https://gist.github.com/rafCodes/229ff65e13cf13611ca864fdd9a5bf19.js"></script>
+
+          <h3>
+            I used the C matrix provided in lecture and in the lab handout as seen below:
+          </h3>
+
+          <script src="https://gist.github.com/rafCodes/f87b14067b8ea28e5a62b224fc9b5f4c.js"></script>
+
+          <h3> My discretized A, discretized B, and C matrices were: </h3>
+          <ul>
+            <li>A:  [[1.,0.094], [0., 0.07066123]] </li>
+            <li>B:  [[0.], [557.60325996]] </li>
+            <li>C:  [[-1., 0.]] </li>
+          </ul>
+
+          <h3>
+            Next, I specified my process noise and sensor noise covariance matrices and calculated them using the code below. I used ballpark values for the variances as suggested, with each Kalman Filter output graph below having different variances.
+          </h3>
+
+          <script src="https://gist.github.com/rafCodes/721bdc1cb425ea86a30438f09f126d33.js"></script>
+
+          <h3>
+            I then initialized my state vector as seen below and started the loop for the Kalman filter.
+          </h3>
+          
+          <script src="https://gist.github.com/rafCodes/61ba02ffcba5e70a8e8bb820ba13f708.js"></script>
+
+          <h3>
+            When calculating the loop, I used the code provided in lecture, on the lab document, and the explanations provided on Anaya’s website found <a href = "https://anyafp.github.io/ece4960/labs/lab7/"> here</a>. I made sure to normalize the input to 1 by dividing the PWM values by the maximum PWM value of 85.
+          </h3>
+
+          <script src="https://gist.github.com/rafCodes/f84a4d34c4c4b6ea9e8940e80d2d09ba.js"></script>
+
+          <h3>  
+            I then ran the Kalman filter on PID data from lab 6 and plotted the results.
+          </h3>
+
+          <h3> This ToF data from this data has some noise so it will be interesting to see how the variances modify the Kalman Filter's behavior with this outlier.</h3>
+
+          <h3> My first Kalman Filter output graph with the following variances: </h3>
+          <ul>
+            <li>Process noise variance for distance: 10</li>
+            <li>Process noise variance for speed: 10</li>
+            <li>Sensor noise variance: 20</li>
+          </ul>
+
+          <div class = img_parent>
+            <img src="Labs\Lab 7\KF10_10_20.png" alt="Kalman filter plotted with ToF data">
+          <p></p>
+          </div>
+
+          <h3>
+            With these values, the sensor is trusted a little less, but the Kalman Filter still follows the noise in the ToF data.
+          </h3>
+
+          <h3> My second Kalman Filter output graph with the following variances: </h3>
+          <ul>
+            <li>Process noise for distance: 10</li>
+            <li>Process noise for speed: 10</li>
+            <li>Sensor noise for the: 100</li>
+          </ul>
+
+          <h3>
+            With these values, the sensor is trusted a lot less, and the Kalman Filter disregards the noise and smooths the ToF measurments.
+          </h3>
+
+          <div class = img_parent>
+            <img src="Labs\Lab 7\KF10_10_100.png" alt="Kalman filter plotted with ToF data, does not follow noise">
+          <p></p>
+          </div>
+
+          <h3> My third Kalman Filter output graph with the following variances: </h3>
+          <ul>
+            <li>Process noise for distance: 100</li>
+            <li>Process noise for speed: 100 </li>
+            <li>Sensor noise for the: 10 </li>
+
+          </ul>
+
+          <h3>
+            With these values, the sensor is trusted a lot more, and the Kalman Filter follows the sensor closely and follows the noise in the ToF data.
+          </h3>
+
+          <div class = img_parent>
+            <img src="Labs\Lab 7\KF100_100_10.png" alt="Kalman filter plotted with ToF data, follows noise and sensor closely">
+          <p></p>
+          </div>
+
+          <h3> From the data above, I will reduce my trust in the sensor data by an amount between the first and second example.
+            Here is my fourth Kalman Filter output graph with the following variances:
+          </h3>
+
+          <ul>
+            <li>Process noise for distance: 10 </li>
+            <li>Process noise for speed: 10 </li>
+            <li>Sensor noise for the: 40 </li>
+
+          </ul>
+
+          <div class = img_parent>
+            <img src="Labs\Lab 7\KF10_10_40.png" alt="Kalman filter plotted with ToF data">
+          <p></p>
+          </div>
+
+          <h3> Now the Kalman filter is more robust to noise while still mostly following the sensor measurments.</h3>
+
+        </p>
+      </div>
+      
+      <div>
+        <p>
+          <h2> Extrapolate ToF Task </h2>
+          <h3>
+            I extrapolated the ToF data by getting the slope of the last two values then multiplying it by the time passed since the last value was recorded. I used the following code to get the extrapolated values from where I saved the ToF data and then fed it into the PID whenever data was unavailable.
+          </h3>
+
+          <script src="https://gist.github.com/rafCodes/e6fd8eaa18b7de3f10002ef756f6e6af.js"></script>
+
+          <h3>
+            I then ran the extrapolated ToF values through the Kalman filter and plotted the results. I used the code below to plot the results.
+          </h3>
+
+          <h3>
+            Here are three videos and graphs of the car moving and of the raw and estimated data in the same graph. As can be seen from the graphs, including the close up of the data, the ToF extrapolation managed to follow the ToF values very well and let the PID work as intended. Extrapolation did was influenced by noise, but this could be reduced by looking at the slope between more points.
+          </h3>
+
+          <video width="430" height="270" controls="">
+            <source src="Labs\Lab 7\ExtrapolationTestOne.mp4">
+          <p></p>
+          </video>
+
+          <div class = img_parent>
+            <img src="Labs\Lab 7\ExtrapolationTestOne.png" alt="Extrapolated values graphed with ToF values, matching them well">
+          <p></p>
+          </div>
+
+          <h3>
+            The close up of the extrapolated values and ToF values shows that the extrapolation is very close to the ToF values and follows them well.
+          </h3>
+
+          <div class = img_parent>
+            <img src="Labs\Lab 7\ExtrapolationTestOneZoomed.png" alt="Close up of previous graphs">
+          <p></p>
+          </div>
+          
+          <h3>
+            Here are the other two videos and graphs of the car using the ToF extrapolation.
+          </h3>
+
+          <video width="430" height="270" controls="">
+            <source src="Labs\Lab 7\ExtrapolationTestTwo.mp4">
+          <p></p>
+          </video>
+
+          <div class = img_parent>
+            <img src="Labs\Lab 7\ExtrapolationTestTwo.png" alt="Extrapolated values graphed with ToF values, matching them well">
+          <p></p>
+          </div>
+
+          <video width="430" height="270" controls="">
+            <source src="Labs\Lab 7\ExtrapolationTestThree.mp4">
+          <p></p>
+          </video>
+
+          <div class = img_parent>
+            <img src="Labs\Lab 7\ExtrapolatedTestThree.png" alt="Extrapolated values graphed with ToF values, matching them well">
+          <p></p>
+          </div>
+
+        </p>
+      </div>
+
+  </div>
+  </section>
+
+  </div>
+
+</body>
+
+</html>
