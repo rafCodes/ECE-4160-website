@@ -98,7 +98,17 @@
           <script src="https://gist.github.com/rafCodes/b0393ac1909257736340b002393470a8.js"></script>
 
           <h3>
-            Here are three trials:
+            The image below is data I recorded during testing to make sure the state machine was working correctly. This is the expected data during the trial runs and used the front ToF sensor. The front sensor was reading correctly at low speeds that were not fast enough to have the robot flip, but had issues recording data when running fast to have the robot flip as can be seen in the data below. 
+
+          </h3>
+
+            <div class = img_parent>
+              <img src="Labs\Lab 8\StateMachineTesting.png" alt="Expected test trial data">
+            <p></p>
+            </div>
+
+          <h3>
+            Here are three trial videos: with the data graphs with IMU, ToF, extrapolated ToF, and motor values with time stamps:
           </h3>
           
           <div>
@@ -108,11 +118,6 @@
               <source src="Labs\Lab 8\Trial1.mp4">
             <p></p>
             </video>
-
-            <!-- <div class = img_parent>
-              <img src="IMAGE SOURCE" alt="first trial data">
-            <p></p>
-            </div> -->
           </div>
 
           <div>
@@ -122,11 +127,6 @@
               <source src="Labs\Lab 8\Trial2.mp4">
             <p></p>
             </video>
-
-            <!-- <div class = img_parent>
-              <img src="IMAGE SOURCE" alt="second trial data">
-            <p></p>
-            </div> -->
           </div>
 
           <div>
@@ -136,15 +136,26 @@
               <source src="Labs\Lab 8\Trial3.mp4">
             <p></p>
             </video>
-
-            <!-- <div class = img_parent>
-              <img src="IMAGE SOURCE" alt="third trial data">
-            <p></p>
-            </div> -->
           </div>
         </p>
       </div>
 
+
+      <div>
+        <p>
+          <h2> Trial Data </h2>
+          <h3>
+            For all the trials, the ToF sensor was giving me issues with the data. The data was not consistent and would often give me a value of 0 when the robot was moving fast. 
+            This was due to the sensor not being able to read the distance to the wall when the robot was moving fast, likely due to a hardware connection as the side sensor was working fine during fast speeds. 
+            The graph below shows the data from the front ToF sensor and the extrapolated data from the trials which was the same for all three trials.
+          </h3>
+
+          <div class = img_parent>
+            <img src="Labs\Lab 8\TrialData.png" alt="Trial Data">
+          <p></p>
+          </div>
+        </p>
+      </div>
       
       <div>
         <p>
