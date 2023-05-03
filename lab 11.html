@@ -1,0 +1,260 @@
+<!doctype html>
+<html>
+<!doctype html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="chrome=1">
+  <title>Raphael Fortuna ECE 4160 Website</title>
+  <link rel="stylesheet" href="stylesheets/styles.css">
+  <link rel="stylesheet" href="stylesheets/github-dark.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+  <script src="javascripts/respond.js"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+
+</head>
+
+<body>
+  <div id="header">
+    <nav>
+      <li class="fork"><a href="https://github.com/rafCodes/ECE-4160-website">View On GitHub</a></li>
+    </nav>
+  </div><!-- end header -->
+
+  <div class="wrapper">
+
+    <section>
+      <div id="title">
+        <h1>ECE 4160 Fast Robots</h1>
+        <p></p>
+        <center>
+          <h2>Raphael Fortuna</h2>
+        </center>
+        <p></p>
+        <hr>
+        <span class="credits left">Lab reports made by <a href="https://github.com/rafCodes">Raphael Fortuna @
+            rafCodes</a></span>
+        <span class="credits right">Hosted on GitHub Pages &mdash; Theme by <a
+            href="https://twitter.com/michigangraham">mattgraham</a></span>
+      </div>
+
+      <!-- Lab information goes here -->
+
+      <center>
+        <h2><a href="index.html" class="btn">Home</a></h2>
+        <h1> Lab 11: Localization on the real robot </h1>
+      </center>
+
+      <div>
+        <p>
+          <h2> Summary </h2>
+          <h3>
+            In this lab, I merged lab 9 and 10 together to allow for the robot to rotate and collect ToF data and then use that data with the simulation and Bayes Filter to determine where the robot is most likely to be.
+
+          </h3>
+        </p>
+      </div>
+
+      <div>
+        <p>
+          <h2> Prelab </h2>
+          <h3>
+            We were given three new files – localization_extras that contained a Bayes Filter implementation for us to use, lab11_sim.ipynb that shows how the Bayes filter is run using the virtual robot, and lab11_real.ipynb provides a framework for communicating with the real robot and the simulation. I placed the .ipynb files into the notebooks folder and placed the localization_extras file with the other robot management files.
+          </h3>
+        </p>
+      </div>
+
+      <div>
+        <p>
+          <h2> Running Simulation Task </h2>
+          <h3>
+            The first task was to run the simulation in lab11_sim.ipynb to see how the Bayes Filter works with the virtual robot. Here I ran the simulation from lab11_sim.ipynb to make sure it was working. A picture of the plot can be seen below with the green for the ground truth of the robot, blue for the predicted location from the bayes filter, and red for the odometry readings from the robot:          </h3>
+
+          <div class = img_parent>
+            <img src="Labs\Lab 11\SimGraph.png" alt="Graph of robot movement with odometry, belief, and ground truth">
+          <p></p>
+          </div>
+          
+        </p>
+      </div>
+
+      <div>
+        <p>
+          <h2> Update Step Coding Task </h2>
+          <h3>
+            The next step was to add code to the lab11_real.ipynb. It had an observation loop function to be completed for the RealRobot class that would replace the VirtualRobot class. It needed to communicate with the robot using BLE and collect 18 ToF measurements during one rotation – one every 20 degrees. My code setup in the previous labs was using python scripts instead of Jupyter notebooks since I could not connect to the Arduino via bleak and BLE. I worked on transferring the simulation to scripts from the Jupyter notebook, but this was unsuccessful. So, I created a CSV file that would act as an intermediary between the two.
+          </h3>
+
+          <h3>
+            The python script code would connect to the robot and get the ToF data and write it to a CSV file. The Jupyter notebook would monitor this file’s modification time and wait until it had changed. Once it had been edited, the Jupyter notebook loaded the data from the CSV and processed the data using the Bayes Filter. For the next lab, I will add an additional file that the python script will monitor to send information back to the robot from the Jupyter notebook that the Jupyter notebook will write to. The code for this is below:
+          </h3>
+
+          <script src="https://gist.github.com/rafCodes/487d81ccbd3201ee061bc5061ad0ae16.js"></script>
+
+          <h3>
+            This worked really well, and I was able to get data from the robot. This only required making a modification for an extra file to be written to from the python script code from lab 9 and modifying the lab 9 Arduino code to collect 18 ToF measurements instead of 14.
+          </h3>
+          
+        </p>
+      </div>
+
+      <div>
+        <p>
+          <h2> Running the Update Step Task </h2>
+          <h3>
+            I placed the robot in each of the four marked poses and ran the python script and Jupyter notebook at the same time. One thing to note, I made a modification in localization.py to normalize the angle that it output about the robot’s pose in the Bayes Filter since it was going out of the +/- 180 degree range. The code for that change is below:
+          </h3>
+
+          <script src="https://gist.github.com/rafCodes/a1d19d330c044877e0b26e65044a793a.js"></script>
+
+          <h3>
+            I also had the robot point 90 degrees from the point where it is since I am still repairing the front ToF sensor and am using the side ToF sensor. I added an offset to the ToF data of 3 cm to account for the different location on the robot.
+          </h3>
+        </p>
+      </div>
+
+
+      <div>
+        <p>
+          <h2> Update step for (-3 ft ,-2 ft ,0 deg) Task </h2>
+
+          <video width="430" height="270" controls="">
+            <source src="RobotMovingAround.mp4">
+          <p></p>
+          </video>
+
+          <div class = img_parent>
+            <img src="Labs\Lab 11\BottomLeftGraph.png" alt="localizing in the bottom left of the map, close to ground truth">
+          <p></p>
+          </div>
+
+          <h3>
+            <ul>
+              <li>
+                Belief pose: (-0.914, -0.914, 110.000)
+              </li>
+              <li>
+                Ground truth pose: (-0.914, -0.610, 90.000)
+              </li>
+              <li>
+                Error: (-0.000, 0.305, -20.000)
+              </li>
+            </ul>
+          </h3>
+
+          <h3>
+            The robot was able to localize very close to both the point it was at and the direction it was facing. There was some shifting in position while the robot was rotating in the -y direction and this might have led to the belief pose being shifted downwards.
+          </h3>
+
+        </p>
+      </div>
+
+      <div>
+        <p>
+          <h2> Update step for (0 ft,3 ft, 0 deg) Task </h2>
+
+          <div class = img_parent>
+            <img src="Labs\Lab 11\TopLeftGraph.png" alt="localizing in the top left of the map, close to ground truth">
+          <p></p>
+          </div>
+
+          <h3>
+            <ul>
+              <li>
+                Belief pose: (-0.305, 0.610, 90.000)
+              </li>
+              <li>
+                Ground truth pose: (0.000, 0.914, 90.000)
+              </li>
+              <li>
+                Error: (0.305, 0.305, 0.000)
+              </li>
+            </ul>
+          </h3>
+
+          <h3>
+            The position was slightly shifted downwards and to the left. The robot again had some translation while it was moving in a circle which could have led to this issue – even though it returned to the correct pose. The direction of the belief matched the ground truth.
+          </h3>
+          
+        </p>
+      </div>
+
+      <div>
+        <p>
+          <h2> Update step for (5 ft,-3 ft, 0 deg) Task </h2>
+
+          <div class = img_parent>
+            <img src="Labs\Lab 11\BottomRightGraph.png" alt="localizing in the bottom right of the map, far from ground truth">
+          <p></p>
+          </div>
+
+          <h3>
+            <ul>
+              <li>
+                Belief pose: (0.610, -1.219, 50.000)
+              </li>
+              <li>
+                Ground truth pose: (1.524, -0.914, 90.000)
+              </li>
+              <li>
+                Error: (0.914, 0.305, 40.000)
+              </li>
+            </ul>
+          </h3>
+
+          <h3>
+            This point had the largest error of any of the other points and had both a positional and angular angle. This one had some translation as well, which may have led to it being closer to the wall at the end and appearing to be nearer the other box and collected data from the gap between the top box and the wall, thus making it seem like the large box was larger away as well. These two factors combined to give it a translation towards the smaller box and a angle error.
+          </h3>
+          
+        </p>
+      </div>
+
+      <div>
+        <p>
+          <h2> Update step for (5 ft,3 ft, 0 deg) Task </h2>
+
+          <div class = img_parent>
+            <img src="Labs\Lab 11\TopRightGraph.png" alt="localization at the top right of the map, close to ground truth">
+          <p></p>
+          </div>
+
+          <h3>
+            <ul>
+              <li>
+                Belief pose: (1.829, 0.610, 90.000)
+              </li>
+              <li>
+                Ground truth pose: (1.524, 0.914, 90.000)
+              </li>
+              <li>
+                Error: (-0.305, 0.305, 0.000)
+              </li>
+            </ul>
+          </h3>
+
+          <h3>
+            This one had nearly the same error as the second point but flipped over the y axis. There was again some translation while taking measurements which might have led to the translation in position for the belief. The angle had no error, again similar to the second point.
+          </h3>
+          
+        </p>
+      </div>
+
+      <div>
+        <p>
+          <h2> Robot localization Discussion Task: </h2>
+          <h3>
+            For all poses, the translation of the robot due to the left wheels having some issues moving caused the poses to be translated downwards – except for the bottom right point. The robot seemed to localize better when there were more walls and struggled a little bit more with open spaces. This was true for the first, second, and fourth pose that all had walls that were easier to identify while the third point had some longer corridors that could hit the max range of the sensor and cause it to return an error value instead of the actual value.
+          </h3>         
+        </p>
+      </div>
+      
+
+  </div>
+  </section>
+
+  </div>
+
+</body>
+
+</html>
