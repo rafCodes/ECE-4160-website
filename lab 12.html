@@ -1,0 +1,278 @@
+<!doctype html>
+<html>
+<!doctype html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="chrome=1">
+  <title>Raphael Fortuna ECE 4160 Website</title>
+  <link rel="stylesheet" href="stylesheets/styles.css">
+  <link rel="stylesheet" href="stylesheets/github-dark.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+  <script src="javascripts/respond.js"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+
+</head>
+
+<body>
+  <div id="header">
+    <nav>
+      <li class="fork"><a href="https://github.com/rafCodes/ECE-4160-website">View On GitHub</a></li>
+    </nav>
+  </div><!-- end header -->
+
+  <div class="wrapper">
+
+    <section>
+      <div id="title">
+        <h1>ECE 4160 Fast Robots</h1>
+        <p></p>
+        <center>
+          <h2>Raphael Fortuna</h2>
+        </center>
+        <p></p>
+        <hr>
+        <span class="credits left">Lab reports made by <a href="https://github.com/rafCodes">Raphael Fortuna @
+            rafCodes</a></span>
+        <span class="credits right">Hosted on GitHub Pages &mdash; Theme by <a
+            href="https://twitter.com/michigangraham">mattgraham</a></span>
+      </div>
+
+      <!-- Lab information goes here -->
+
+      <center>
+        <h2><a href="index.html" class="btn">Home</a></h2>
+        <h1> Lab 12: Path Planning and Execution </h1>
+      </center>
+
+      <div>
+        <p>
+          <h2> Summary </h2>
+          <h3>
+            In this lab, I worked with Jueun and Tiantian to have the robot path plan and drive around the map using PID, Kalman Filter, and global path planning. There were nine different waypoints given to us, and shown below, and our goal was to hit each waypoint as we drove through the map as quickly and accurately as possible.
+          </h3>
+
+          <ul>
+            <li>
+              1. (-4, -3) start
+            </li>
+            <li>
+              2. (-2, -1)
+            </li>
+            <li>
+              3. (1, -1)
+            </li>
+            <li>
+              4. (2, -3)
+            </li>
+            <li>
+              5. (5, -3)
+            </li>
+            <li>
+              6. (5, -2)
+            </li>
+            <li>
+              7. (5, 3)
+            </li>
+            <li>
+              8. (0, 3)
+            </li>
+            <li>
+              9. (0, 0) end
+            </li>
+          </ul>
+          
+          <h3>
+            Here is a picture of the map we were given from the lab 12 instructions annotated with the waypoint numbers:
+          </h3>
+
+          <div class = img_parent>
+            <img src="Labs\Lab 12\Map.png" alt="Map of where the robot need to drive">
+          <p></p>
+          </div>
+          
+          
+            <h3>
+            We initially were going to use localization and the Bayes Filter to localize every time the robot got moved from one waypoint to the next to correct itself or move back to the waypoint if it was missed. However, we had an infrequent runtime error that was causing localization to be unstable and sometimes fail, so we decided to not use localization given our time constraints.
+          </h3>
+          <h3>
+            We also had considered combining this with the magnetometer to correct heading errors, as that was the most inaccurate part of localization. We would update and correct our heading once our robot was completely stopped. This is because the motors’ magnetic field interferes with that of the magnetometer, and so they must not be running to measure the change.
+          </h3>
+          <h3>
+            We decided to do global path planning with the Python code on the laptop and send the robot the required commands every few seconds, with no data being sent back to the laptop. We would have the robot use feedback control when driving forward and when turning using the ToF and gyroscope respectively. We chose this because this would allow us to do the planning and understand the map – as well as also choose the path – on the laptop while the robot would execute the commands to turn and move forward with feedback control to be more precise with its movements and not have to handle all that planning.
+          </h3>
+        </p>
+      </div>
+
+
+      <div>
+        <p>
+          <h2> Team Collaboration </h2>
+          <h3>
+            We used Jueun’s robot, Kalman Filter, and PID forward control with the ToF. We used Tiantian’s PID turning control with the IMU. We used Raphael’s global path planning code for controlling the robot.
+          </h3>         
+        </p>
+      </div>
+
+      <div>
+        <p>
+          <h2> The Robot System </h2>
+          <h3>
+            Our final system consisted of the global path planner running in Python, a PID controller using the gyroscope for turning, a PID controller using a Kalman Filter for driving forward, and a PID controller for driving forward a set distance from a wall. The difference in these last two commands is one lets us have the robot drive forward 1 foot, while the other allows us to have the robot drive forward until it is 2 feet from a wall.
+          </h3>
+
+          <h3>
+            Doing this allowed us to use the walls to correct any drifting the car might have had while moving. When doing this while driving to the fourth and fifth points, we were able to have the robot realign itself by doing this, as can be seen in our video later below.
+          </h3>
+
+          <h3>
+            Here is a diagram that explains how our processes worked:
+          </h3>
+
+          <div class = img_parent>
+            <img src="Labs\Lab 12\CodeProcess.png" alt="Process diagram">
+          <p></p>
+          </div>
+          
+          <h3>
+            Diagram made using <a href="https://www.cs.unc.edu/~otternes/comp455/fsm_designer/">Finite State Machine Designer by Evan Wallace</a>
+          </h3>
+          
+        </p>
+      </div>
+
+      <div>
+        <p>
+          <h2> Path Planner </h2>
+          <h3>
+            The path planner was built to use the turn-go-turn procedure from the odometry model. We first gave the planner a list of the different points/poses we wanted to go to – x, y, and yaw – then sent each command to the robot, skipping any turns that were 0 degrees since that would not do anything. After a command was sent, the path planner would wait five seconds – or ten seconds for the longest movement period – and then send the next command. We later saw that the PID controller for driving forward a set distance from a wall had a blocking ToF data collection function, discussed later below, and took 15 seconds, but this was not an issue for our path planner or the commands that came after as they were queued up by ArduinoBLE, the library we used for Bluetooth and since no data was sent back to the path planner from the robot.
+          </h3>
+
+          <script src="https://gist.github.com/rafCodes/7f94dc8386a5273fefe39a50c8d7a591.js"></script>
+
+          <h3>
+            The commands were generated for each point that the robot was moving to and worked by getting the current position and then finding what turn, drive, and turn command was needed to get the robot to the target point using the code made for lab 10.
+          </h3>
+
+          <script src="https://gist.github.com/rafCodes/3bb2a178a0b03dbeb2d64e37b36b44ee.js"></script>
+          
+          <h3>
+            We used the point order given in the lab handout and added extra turns to avoid having to drive diagonally. This was because we found the ToF sensor was less accurate when going hitting a wall at an angle that was not normal to the wall. We also added the distance to the wall at a point (A) in the direction of the previous point (B) to that point (A) to use the distance to the wall if needed. The control for moving a certain distance based on how far the robot traveled, the travel distance command, was the default command sent, but if a distance to the wall was added to the point, the movement command using the distance to the wall was sent instead.
+          </h3>
+
+          <h3>
+            The path planner took at most 1.5 milliseconds to compute the three controls needed and on average took 1 millisecond to compute them. The output was found to be reliable by printing the commands sent to the robot and making sure they made sense when considering how the robot would need to move from one point to another, as well as getting our robot from the start to finish, and if any slight adjustments needed to be made.
+          </h3>
+
+          <h3>
+            The full code is below and has the waypoints/points we used listed as the poses:
+          </h3>
+
+          <script src="https://gist.github.com/rafCodes/ca4c852826bc9517073baf43c550a59b.js"></script>
+
+        </p>
+      </div>
+
+      <div>
+        <p>
+          <h2> PID Controller for turning </h2>
+          <h3>
+            The PID controller for turning was a P controller. This was because we had very smooth turns and we were collecting data at a very fast rate of over 100 yaw points a second from the gyroscope. We accounted for deadband in our controller by having the minimum PWM value, 100, be what the PID output was added with. The PID was scaled to be in the range of PWM values by using the Kp values of .1 and .04 for the left and right turns respectively, meaning at most a value of 118 PWM and at the least, a value of 82 PWM. Since we never turned more than 90 degrees, our lowest PWM value was predicted to be 91, which still allowed the car to turn.          
+          </h3>
+
+          <h3>
+            We would try to get to the turn setpoint for five seconds while updating the error value with how many degrees we had traveled by using the gyroscope and integrating the change in yaw over time. After five seconds our robot would stop and be ready for the next command – matching the time delay that the path planner gave between sending each command. Our turns came out to be very accurate when run as seen in the video later below.          
+          </h3>
+
+          <h3>
+            The code for turning right is below with comments for what differs from the turning left code:
+          </h3>
+          
+          <script src="https://gist.github.com/rafCodes/e70ce8f7c76c1d4fa3832f4105e8502d.js"></script>
+
+        </p>
+      </div>
+
+      <div>
+        <p>
+          <h2> PID controller with a Kalman Filter for driving forward </h2>
+          <h3>
+            The PID controller for driving forward with the Kalman Filter was a P controller. Our movements were smooth and our ToF was collecting 10 points a second. This combined with the Kalman Filter allowed us to react quickly and made just using the P controller work well as shown later in the video below. We accounted for deadband by having an upper and lower limit using the function below to avoid having the car get stuck when the error made the PWM small. The kp value we used, .04, allowed us to scale our error values to PWM values. Our error value was the initial ToF value taken before starting to move minus the new distance from the ToF value, and then all this subtracted from the target distance that we wanted the robot to move forward. This is what lets us move a certain distance forward.
+          </h3>
+
+          <script src="https://gist.github.com/rafCodes/9303c52cc9207127543cd6b1c0497215.js"></script>
+
+          <h3>
+            We would try to get to the target point for at least 750 cycles of our while loop or until our error was less than 0. This meant that it was unbounded, but only took five or less seconds during our runs. The only case where it took more than five seconds was when traveling the longest distance between the second and third points and we had the path planner delay sending the next command for an extra five seconds.
+          </h3>
+
+          <h3>
+            We also considered the difference between both motors and accounted for that in our motor control code, which needed to have the PWM value scaled down to 85% before sending it to the right motor. This was also present when turning. Here is a link to Jueun’s website with the full Kalman Filter: <a href = " https://jueunkwon.github.io/"> link </a>
+          </h3>
+
+          <script src="https://gist.github.com/rafCodes/bbd36b2c5070b8c23ecdb73c5f09029f.js"></script>
+          
+        </p>
+      </div>
+
+      <div>
+        <p>
+          <h2> PID controller for driving forward to a set distance from a wall </h2>
+          <h3>
+            This controller for driving forward a certain distance from a wall was the exact same as the previous controller – featuring the same kp values too and accounting for deadband– except for not using the Kalman filter, having the error instead be the target distance minus the current ToF sensor measurement, and only running for 150 cycles. However, this controller used a ToF function that was blocking, so due to the rate of the ToF being around 10 Hz, the controller would take 15 seconds to run. This did not match our path planner’s timings of 5 seconds, but this was ok as the commands that were sent were queued up on the robot and handled by the Bluetooth library used on the robot, ArduinoBLE.
+          </h3>
+
+          <h3>
+            The code for the blocking ToF data collection function is below:
+          </h3>
+          <script src="https://gist.github.com/rafCodes/e114a3bed71f1c78b1aeede66fa057be.js"></script>
+
+          <h3>
+            It was able to drive the robot to the set distance from the wall very well as seen in the video later below, so we only kept it as a P controller. We did not use the Kalman Filter as it was originally made before the Kalman Filter lab and was working well.
+          </h3>
+
+          <script src="https://gist.github.com/rafCodes/162d68851d121082cb6862022bb06507.js"></script>
+
+          <h3>
+            Here is a picture of the distances between points and the wall that we used on a annotated map from the lab 12 page:
+          </h3>
+
+          <div class = img_parent>
+            <img src="Labs\Lab 12\WallDistances.png" alt="Picture with map showing the different distances to the wall">
+          <p></p>
+          </div>
+          
+        </p>
+      </div>
+
+      <div>
+        <p>
+          <h2> Running the robot </h2>
+          <h3>
+            We were able to have the robot drive to or be very close to all the waypoints. Our initial strategy was to only have the robot drive until it was a set distance from a wall or obstacle, but this was challenging if our ToF did not line up perfectly with an object and made us crash into an obstacle that was just out of line-of-sight. Then we moved to only use the travel distance – but this led to errors accumulating as we drove around. So, we went with a hybrid approach that helped us avoid issues with obstacles using the travel distance and helped realign the robot using the wall distance.
+          </h3>
+
+          <h3>
+            Our solution was able to work well when only dealing with walls, but even with using the travel distance, could struggle if the robot drifted and changed where the ToF was pointing, which would make the apparent travel distance seem longer or shorter than it was, making the robot overshoot or undershoot the target point/pose.
+          </h3>
+
+          <h3>
+            Here is the video of our best run with the screen output: 
+          </h3>
+
+          
+          <iframe width="560" height="315" src="https://www.youtube-nocookie.com/embed/OqgTRo9_394" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+         
+        </p>
+      </div>
+      
+
+  </div>
+  </section>
+
+  </div>
+
+</body>
+
+</html>
